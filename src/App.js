@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 function fetchRepos(search) {
   return fetch(`https://api.github.com/search/repositories?q=${search}`, {
@@ -20,6 +20,7 @@ function fetchRepos(search) {
 export default function App() {
   const [search, setSearch] = useState("");
   const [options, setOptions] = useState([]);
+  const timeoutRef = useRef(undefined);
 
   return (
     <div>
@@ -32,10 +33,14 @@ export default function App() {
 
           setSearch(value);
 
+          clearTimeout(timeoutRef.current);
+
           if (value) {
-            fetchRepos(value).then((repos) => {
-              setOptions(repos);
-            });
+            timeoutRef.current = setTimeout(() => {
+              fetchRepos(value).then((repos) => {
+                setOptions(repos);
+              });
+            }, 1000);
           } else {
             setOptions([]);
           }
